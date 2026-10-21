@@ -14,6 +14,7 @@ from .executor import execute_plan
 from .plan import discard_current, load_current, save_current, validate_plan
 from .provider import ProviderError, request_plan
 from .render import render_plan
+from .safety import PACKAGE
 
 
 def _yes(prompt: str, reader: Callable[[str], str] = input) -> bool:
@@ -70,6 +71,28 @@ def _plan(task: str) -> int:
     if not task.strip():
         print("Provide a task, for example: ash \"install jq\"", file=sys.stderr)
         return 2
+    # The most common a-Shell task does not need a model: turn an exact simple
+    # package request into the same constrained plan the model may produce.
+    words = task.split()
+    if len(words) == 2 and words[0].lower() == "install" and PACKAGE.fullmatch(words[1]):
+        plan = {
+            "schema_version": SCHEMA_VERSION,
+            "summary": "Install a-Shell package " + words[1] + ".",
+            "status": "ready",
+            "reason": None,
+            "steps": [{
+                "command": "pkg install " + words[1],
+                "why": "Install the requested a-Shell command package.",
+                "risk": "network",
+                "expected": "a-Shell reports the package installation result.",
+            }],
+        }
+        if plan_path().exists() and not _yes("Replace the existing saved plan? Type yes to continue: "):
+            print("Plan not saved.")
+            return 1
+        save_current(plan)
+        print(render_plan(plan))
+        return 0
     try:
         config = load_config()
         plan = validate_plan(request_plan(config, task))
