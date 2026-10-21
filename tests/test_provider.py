@@ -24,6 +24,7 @@ class ProviderTests(unittest.TestCase):
             self.assertEqual(req.full_url, "https://api.openai.com/v1/chat/completions")
             self.assertEqual(req.get_header("Authorization"), "Bearer secret-value")
             self.assertNotIn("temperature", json.loads(req.data.decode("utf-8")))
+            self.assertIn("`pkg install NAME` with risk `network`", json.loads(req.data.decode("utf-8"))["messages"][0]["content"])
             return Response(json.dumps({"choices": [{"message": {"content": json.dumps(VALID)}}]}))
         self.assertEqual(request_plan(self.config, "check", opener=opener), VALID)
 
