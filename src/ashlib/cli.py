@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import getpass
 import json
 import sys
 from typing import Callable
@@ -36,11 +35,10 @@ def _setup() -> int:
     print("Selected: " + preset["label"])
     print("Endpoint: " + preset["base_url"])
     model = input("Model: ").strip()
-    try:
-        key = getpass.getpass("API key (stored locally in a-Shell): ").strip()
-    except Exception:
-        print("Warning: hidden key input is unavailable; input may be visible.", file=sys.stderr)
-        key = input("API key: ").strip()
+    # getpass can deadlock under a-Shell's terminal bridge. Use normal input
+    # deliberately instead of attempting a hidden prompt that may freeze.
+    print("Note: a-Shell cannot reliably hide this prompt; paste the key, then avoid sharing terminal screenshots/history.", file=sys.stderr)
+    key = input("API key: ").strip()
     if not model or not key:
         print("Model and API key are required.", file=sys.stderr)
         return 2

@@ -61,6 +61,11 @@ provider endpoints are OpenRouter (`https://openrouter.ai/api/v1`), xAI
 (`https://api.x.ai/v1`), and OpenAI (`https://api.openai.com/v1`); users enter
 their own model identifier and key.
 
+On a-Shell, the setup key prompt is intentionally visible: Python's hidden
+`getpass` prompt can freeze its terminal bridge. Do not share screenshots or
+terminal history containing that entry; the installer stores the key locally
+in its plaintext configuration file.
+
 ## Development checks
 
 ```sh

@@ -31,3 +31,8 @@ class CliTests(unittest.TestCase):
     def test_no_argument_starts_navigation_menu(self):
         with patch("builtins.input", return_value="q"):
             self.assertEqual(main([]), 0)
+
+    def test_setup_uses_normal_input_not_getpass(self):
+        import inspect
+        from ashlib import cli
+        self.assertNotIn("import getpass", inspect.getsource(cli))
