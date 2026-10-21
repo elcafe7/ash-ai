@@ -14,7 +14,7 @@ from .executor import execute_plan
 from .plan import discard_current, load_current, save_current, validate_plan
 from .provider import ProviderError, request_plan
 from .render import render_plan
-from .safety import PACKAGE
+from .safety import A_SHELL_PKG_CATALOG, PACKAGE
 
 
 def _yes(prompt: str, reader: Callable[[str], str] = input) -> bool:
@@ -75,6 +75,16 @@ def _plan(task: str) -> int:
     # package request into the same constrained plan the model may produce.
     words = task.split()
     if len(words) == 2 and words[0].lower() == "install" and PACKAGE.fullmatch(words[1]):
+        if words[1] not in A_SHELL_PKG_CATALOG:
+            plan = {
+                "schema_version": SCHEMA_VERSION,
+                "summary": "Package availability cannot be verified for " + words[1] + ".",
+                "status": "unsupported",
+                "reason": "`" + words[1] + "` is not in ash-ai's verified a-Shell pkg catalog. Verified packages: " + ", ".join(sorted(A_SHELL_PKG_CATALOG)) + ".",
+                "steps": [],
+            }
+            print(render_plan(plan))
+            return 0
         plan = {
             "schema_version": SCHEMA_VERSION,
             "summary": "Install a-Shell package " + words[1] + ".",

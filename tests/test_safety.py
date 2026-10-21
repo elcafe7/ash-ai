@@ -6,7 +6,7 @@ from ashlib.safety import validate_command
 class SafetyTests(unittest.TestCase):
     def test_allowlist(self):
         allowed = [
-            ("pkg install jq", "network"), ("pip install foo", "network"),
+            ("pkg install zip", "network"), ("pip install foo", "network"),
             ("pip3 install foo", "network"), ("python3 -m pip install foo", "network"),
             ("help -l", "read_only"), ("which python3", "read_only"),
             ("command -v ls", "read_only"), ("pwd", "read_only"),
@@ -25,7 +25,11 @@ class SafetyTests(unittest.TestCase):
 
     def test_network_install_requires_network_risk(self):
         with self.assertRaises(ValueError):
-            validate_command("pkg install jq", "read_only")
+            validate_command("pkg install zip", "read_only")
         with self.assertRaises(ValueError):
             validate_command("pip install foo", "read_only")
+
+    def test_unverified_a_shell_package_is_rejected(self):
+        with self.assertRaises(ValueError):
+            validate_command("pkg install jq", "network")
 

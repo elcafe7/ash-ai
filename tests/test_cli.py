@@ -37,7 +37,7 @@ class CliTests(unittest.TestCase):
         from ashlib import cli
         self.assertNotIn("import getpass", inspect.getsource(cli))
 
-    def test_simple_install_creates_local_plan_without_provider(self):
+    def test_verified_simple_install_creates_local_plan_without_provider(self):
         import os
         import tempfile
         from ashlib.plan import load_current
@@ -45,8 +45,22 @@ class CliTests(unittest.TestCase):
             previous = os.environ.get("ASH_AI_HOME")
             os.environ["ASH_AI_HOME"] = directory
             try:
+                self.assertEqual(main(["install", "zip"]), 0)
+                self.assertEqual(load_current()["steps"][0]["command"], "pkg install zip")
+            finally:
+                if previous is None: os.environ.pop("ASH_AI_HOME", None)
+                else: os.environ["ASH_AI_HOME"] = previous
+
+    def test_unverified_simple_install_is_not_planned(self):
+        import os
+        import tempfile
+        from ashlib.config import plan_path
+        with tempfile.TemporaryDirectory() as directory:
+            previous = os.environ.get("ASH_AI_HOME")
+            os.environ["ASH_AI_HOME"] = directory
+            try:
                 self.assertEqual(main(["install", "jq"]), 0)
-                self.assertEqual(load_current()["steps"][0]["command"], "pkg install jq")
+                self.assertFalse(plan_path().exists())
             finally:
                 if previous is None: os.environ.pop("ASH_AI_HOME", None)
                 else: os.environ["ASH_AI_HOME"] = previous

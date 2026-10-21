@@ -9,6 +9,9 @@ RISKS = {"read_only", "network", "writes_files", "deletes_files", "elevated_risk
 CONTROL = re.compile(r"[\x00-\x1f\x7f]")
 PACKAGE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}\Z")
 SAFE_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}\Z")
+# Verified a-Shell WebAssembly packages supported by the v1 catalog. Do not
+# claim arbitrary Unix programs are installable through a-Shell's pkg command.
+A_SHELL_PKG_CATALOG = frozenset({"zip", "unzip", "xz", "ffmpeg"})
 
 
 def validate_command(command: str, risk: str | None = None) -> list[str]:
@@ -24,7 +27,7 @@ def validate_command(command: str, risk: str | None = None) -> list[str]:
     program, args = argv[0], argv[1:]
     valid = False
     if program == "pkg":
-        valid = args == ["--version"] or (len(args) == 2 and args[0] == "install" and PACKAGE.fullmatch(args[1]) and risk == "network")
+        valid = args == ["--version"] or (len(args) == 2 and args[0] == "install" and args[1] in A_SHELL_PKG_CATALOG and risk == "network")
     elif program in {"pip", "pip3"}:
         valid = args == ["--version"] or (len(args) == 2 and args[0] == "install" and PACKAGE.fullmatch(args[1]) and risk == "network")
     elif program == "python3":

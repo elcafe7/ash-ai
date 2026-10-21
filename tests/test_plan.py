@@ -4,8 +4,8 @@ from ashlib.plan import validate_plan
 
 
 def valid_plan():
-    return {"schema_version": 1, "summary": "Install jq", "status": "ready", "reason": None,
-            "steps": [{"command": "pkg install jq", "why": "Install jq", "risk": "network", "expected": "success"}]}
+    return {"schema_version": 1, "summary": "Install zip", "status": "ready", "reason": None,
+            "steps": [{"command": "pkg install zip", "why": "Install zip", "risk": "network", "expected": "success"}]}
 
 
 class PlanTests(unittest.TestCase):
