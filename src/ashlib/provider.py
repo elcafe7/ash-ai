@@ -26,7 +26,6 @@ def request_plan(config: dict[str, str], task: str, opener: Callable[..., Any] =
         raise ProviderError("Configuration has an unsupported provider.")
     body = {
         "model": config["model"],
-        "temperature": 0,
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": "Task: " + task},
